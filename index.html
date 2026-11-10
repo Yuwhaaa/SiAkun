@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SiAkun - Sistem Informasi Akuntansi & Pencatatan Jurnal Web</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: {
+                            50: '#f0f4f8',
+                            100: '#d9e2ec',
+                            500: '#334e68',
+                            800: '#102a43',
+                            900: '#0b132b',
+                            950: '#040814'
+                        },
+                        accent: {
+                            blue: '#3b82f6',
+                            emerald: '#10b981',
+                            gold: '#f59e0b'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .hero-gradient {
+            background: linear-gradient(135deg, #0b132b 0%, #1c2541 50%, #3a506b 100%);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased selection:bg-blue-500 selection:text-white">
+
+    <!-- Toast Notification (Replacement for alert) -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-28 transition-transform duration-300 bg-slate-900 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center space-x-3 border border-slate-700">
+        <i class="fa-solid fa-circle-check text-emerald-400 text-xl"></i>
+        <div>
+            <h4 id="toast-title" class="font-bold text-sm">Berhasil!</h4>
+            <p id="toast-message" class="text-xs text-slate-300">Aksi Anda sedang diproses.</p>
+        </div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <nav class="sticky top-0 z-40 bg-navy-950/90 backdrop-blur-md border-b border-slate-800 text-white transition-all">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <!-- Logo -->
+            <a href="#" class="flex items-center space-x-3 group">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-accent-blue flex items-center justify-center shadow-lg shadow-blue-500/30 group-hover:scale-105 transition">
+                    <i class="fa-solid fa-vault text-white text-lg"></i>
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-2xl font-extrabold tracking-tight text-white">Si<span class="text-blue-400">Akun</span></span>
+                    <span class="text-[10px] uppercase tracking-widest text-slate-400 font-medium">SIA Cloud Platform</span>
+                </div>
+            </a>
+
+            <!-- Desktop Menu Items -->
+            <div class="hidden md:flex items-center space-x-8 text-sm font-medium text-slate-300">
+                <a href="#fitur" class="hover:text-white transition">Fitur</a>
+                <a href="#keunggulan" class="hover:text-white transition">Keunggulan</a>
+                <a href="#cara-kerja" class="hover:text-white transition">Cara Kerja</a>
+                <a href="#harga" class="hover:text-white transition">Harga</a>
+                <a href="#testimoni" class="hover:text-white transition">Testimoni</a>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="hidden md:flex items-center space-x-4">
+                <button onclick="openAuthModal('login')" class="px-5 py-2.5 rounded-lg border border-slate-700 hover:border-slate-500 text-slate-200 text-sm font-semibold transition hover:bg-slate-800">
+                    Masuk
+                </button>
+                <button onclick="openAuthModal('register')" class="px-5 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold shadow-lg shadow-blue-600/30 transition transform hover:-translate-y-0.5">
+                    Coba Gratis
+                </button>
+            </div>
+
+            <!-- Mobile Hamburger Button -->
+            <button onclick="toggleMobileMenu()" class="md:hidden text-slate-300 hover:text-white focus:outline-none p-2">
+                <i id="menu-icon" class="fa-solid fa-bars text-2xl"></i>
+            </button>
+        </div>
+
+        <!-- Mobile Menu Drawer -->
+        <div id="mobile-menu" class="hidden md:hidden bg-navy-900 border-b border-slate-800 px-4 pt-4 pb-6 space-y-3">
+            <a href="#fitur" onclick="toggleMobileMenu()" class="block py-2 text-slate-300 hover:text-white">Fitur</a>
+            <a href="#keunggulan" onclick="toggleMobileMenu()" class="block py-2 text-slate-300 hover:text-white">Keunggulan</a>
+            <a href="#cara-kerja" onclick="toggleMobileMenu()" class="block py-2 text-slate-300 hover:text-white">Cara Kerja</a>
+            <a href="#harga" onclick="toggleMobileMenu()" class="block py-2 text-slate-300 hover:text-white">Harga</a>
+            <a href="#testimoni" onclick="toggleMobileMenu()" class="block py-2 text-slate-300 hover:text-white">Testimoni</a>
+            <div class="pt-4 flex flex-col space-y-3">
+                <button onclick="openAuthModal('login'); toggleMobileMenu();" class="w-full py-2.5 rounded-lg border border-slate-700 text-slate-200 text-sm font-semibold">Masuk</button>
+                <button onclick="openAuthModal('register'); toggleMobileMenu();" class="w-full py-2.5 rounded-lg bg-blue-600 text-white text-sm font-semibold shadow-md">Coba Gratis</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero-gradient text-white relative overflow-hidden pt-16 pb-24 lg:pt-24 lg:pb-32">
+        <!-- Background Glow Elements -->
+        <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                
+                <!-- Headline & CTA -->
+                <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
+                    <div class="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 border border-blue-400/30 text-blue-300 text-xs font-semibold uppercase tracking-wider">
+                        <span class="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
+                        <span>Sistem Informasi Akuntansi Generasi Baru</span>
+                    </div>
+                    
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight">
+                        Pencatatan Keuangan dan Jurnal Bisnis Lebih <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">Mudah, Cepat, dan Akurat</span> dengan SiAkun.
+                    </h1>
+                    
+                    <p class="text-lg text-slate-300 max-w-2xl mx-auto lg:mx-0 font-normal leading-relaxed">
+                        Sistem Informasi Akuntansi berbasis web yang dirancang untuk menyederhanakan siklus akuntansi bisnis Anda dari mana saja dan kapan saja. Tanpa ribet, otomatis seimbang.
+                    </p>
+                    
+                    <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start space-y-4 sm:space-y-0 sm:space-x-4 pt-2">
+                        <button onclick="openAuthModal('register')" class="w-full sm:w-auto px-8 py-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-base shadow-xl shadow-blue-600/40 transition transform hover:-translate-y-0.5 flex items-center justify-center space-x-2">
+                            <span>Mulai Gratis Sekarang</span>
+                            <i class="fa-solid fa-arrow-right text-sm"></i>
+                        </button>
+                        <button onclick="openDemoModal()" class="w-full sm:w-auto px-8 py-4 rounded-xl glass-card hover:bg-white/10 text-white font-semibold text-base transition flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-play text-blue-400"></i>
+                            <span>Lihat Demo Interaktif</span>
+                        </button>
+                    </div>
+
+                    <!-- Trust indicators -->
+                    <div class="pt-6 border-t border-slate-800/80 flex flex-wrap items-center justify-center lg:justify-start gap-6 text-xs text-slate-400">
+                        <div class="flex items-center space-x-2">
+                            <i class="fa-solid fa-check text-emerald-400"></i>
+                            <span>Uji Coba Gratis 14 Hari</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fa-solid fa-check text-emerald-400"></i>
+                            <span>Tanpa Kartu Kredit</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fa-solid fa-check text-emerald-400"></i>
+                            <span>Cloud Aman & Tersertifikasi</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dashboard Mockup Preview -->
+                <div class="lg:col-span-5">
+                    <div class="relative mx-auto max-w-md lg:max-w-none">
+                        <!-- Decorative glow -->
+                        <div class="absolute -inset-1.5 bg-gradient-to-r from-blue-600 to-emerald-500 rounded-2xl blur-lg opacity-30 animate-tilt"></div>
+                        
+                        <div class="relative bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden">
+                            <!-- Window Header -->
+                            <div class="bg-slate-950 px-4 py-3 border-b border-slate-800 flex items-center justify-between">
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                                    <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                                    <div class="w-3 h-3 rounded-full bg-emerald-500"></div>
+                                </div>
+                                <span class="text-xs text-slate-400 font-mono">siakun.id/app/jurnal-umum</span>
+                                <i class="fa-solid fa-rotate text-xs text-slate-500"></i>
+                            </div>
+
+                            <!-- Mockup Content -->
+                            <div class="p-5 space-y-4">
+                                <div class="flex justify-between items-center">
+                                    <div>
+                                        <h3 class="font-bold text-sm text-white">Jurnal Umum Transaksi</h3>
+                                        <p class="text-[11px] text-slate-400">Periode: November 2026</p>
+                                    </div>
+                                    <span class="px-2.5 py-1 rounded bg-emerald-500/10 text-emerald-400 text-[10px] font-semibold border border-emerald-500/20">Balance: Rp 0</span>
+                                </div>
+
+                                <!-- Table Mock -->
+                                <div class="bg-slate-950 rounded-lg p-3 border border-slate-800/80 text-xs font-mono space-y-2">
+                                    <div class="grid grid-cols-12 text-slate-500 text-[10px] border-b border-slate-800 pb-1">
+                                        <div class="col-span-2">TANGGAL</div>
+                                        <div class="col-span-6">KETERANGAN / AKUN</div>
+                                        <div class="col-span-2 text-right">DEBIT</div>
+                                        <div class="col-span-2 text-right">KREDIT</div>
+                                    </div>
+                                    <div class="grid grid-cols-12 text-slate-300 items-center py-1 border-b border-slate-900">
+                                        <div class="col-span-2 text-slate-400">10/11</div>
+                                        <div class="col-span-6">
+                                            <span class="text-blue-400 font-semibold">Kas Perusahaan</span><br>
+                                            <span class="text-[10px] text-slate-500">Modal Disetor</span>
+                                        </div>
+                                        <div class="col-span-2 text-right text-emerald-400">15.000k</div>
+                                        <div class="col-span-2 text-right">-</div>
+                                    </div>
+                                    <div class="grid grid-cols-12 text-slate-300 items-center py-1">
+                                        <div class="col-span-2 text-slate-400">10/11</div>
+                                        <div class="col-span-6 pl-4">
+                                            <span class="text-slate-300">Modal Pemilik</span>
+                                        </div>
+                                        <div class="col-span-2 text-right">-</div>
+                                        <div class="col-span-2 text-right text-blue-400">15.000k</div>
+                                    </div>
+                                </div>
+
+                                <!-- Mini Stats Box -->
+                                <div class="grid grid-cols-2 gap-3 pt-2">
+                                    <div class="bg-slate-950/60 p-3 rounded-lg border border-slate-800">
+                                        <div class="text-[10px] text-slate-400">Total Pendapatan</div>
+                                        <div class="text-sm font-bold text-emerald-400">Rp 45.250.000</div>
+                                    </div>
+                                    <div class="bg-slate-950/60 p-3 rounded-lg border border-slate-800">
+                                        <div class="text-[10px] text-slate-400">Laba Bersih Bulan Ini</div>
+                                        <div class="text-sm font-bold text-blue-400">Rp 12.800.000</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </header>
+
+    <!-- Target Audience Section -->
+    <section class="py-16 bg-white border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-xs uppercase tracking-widest text-slate-500 font-bold mb-8">Dirancang Khusus Untuk Berbagai Kebutuhan Profesional</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200 hover:shadow-lg transition">
+                    <div class="w-12 h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center mx-auto mb-4 text-xl">
+                        <i class="fa-solid fa-store"></i>
+                    </div>
+                    <h3 class="font-bold text-slate-900 mb-2">Pemilik UMKM & Bisnis</h3>
+                    <p class="text-sm text-slate-600">Pencatatan keuangan rapi tanpa kerumitan software akuntansi tradisional yang berat dan membingungkan.</p>
+                </div>
+                <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200 hover:shadow-lg transition">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto mb-4 text-xl">
+                        <i class="fa-solid fa-user-tie"></i>
+                    </div>
+                    <h3 class="font-bold text-slate-900 mb-2">Akuntan & Staff Keuangan</h3>
+                    <p class="text-sm text-slate-600">Alat perjurnalan efisien, terstruktur, berbasis cloud, dan mendukung multi-perusahaan secara instan.</p>
+                </div>
+                <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200 hover:shadow-lg transition">
+                    <div class="w-12 h-12 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center mx-auto mb-4 text-xl">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </div>
+                    <h3 class="font-bold text-slate-900 mb-2">Mahasiswa & Praktisi</h3>
+                    <p class="text-sm text-slate-600">Referensi atau alat simulasi pencatatan jurnal akuntansi digital yang bersih dan intuitif.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Core Features Section (Modul-Modul Utama SIA) -->
+    <section id="fitur" class="py-24 bg-slate-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16 space-y-4">
+                <h2 class="text-blue-600 font-bold text-sm uppercase tracking-wider">Modul & Fitur Komprehensif</h2>
+                <h3 class="text-3xl sm:text-4xl font-extrabold text-slate-900">Sistem Informasi Akuntansi (SIA) Berstandar Profesional</h3>
+                <p class="text-slate-600 text-base">Dibangun dengan arsitektur modern ala software akuntansi kelas atas untuk memastikan seluruh kebutuhan siklus akuntansi terpenuhi dengan sempurna.</p>
+            </div>
+
+            <!-- Features Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                
+                <!-- Feature 1: Master Data -->
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 hover:border-blue-500 transition group">
+                    <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-6 text-xl group-hover:bg-blue-600 group-hover:text-white transition">
+                        <i class="fa-solid fa-sitemap"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-slate-900 mb-3">Master Data & Pengaturan</h4>
+                    <p class="text-sm text-slate-600 leading-relaxed mb-4">
+                        Manajemen Chart of Accounts (Kode Akun) hirarkis terstruktur (Akun 1, Akun 2, dst.) untuk pengelompokan akun utama & sub-akun secara fleksibel.
+                    </p>
+                    <ul class="text-xs text-slate-500 space-y-1.5 font-medium">
+                        <li><i class="fa-solid fa-check text-emerald-500 mr-2"></i> Kustomisasi Kode Akun</li>
+                        <li><i class="fa-solid fa-check text-emerald-500 mr-2"></i> Saldo Awal Otomatis</li>
+                    </ul>
+                </div>
+
+                <!-- Feature 2: Perjurnalan & Transaksi -->
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 hover:border-blue-500 transition group">
+                    <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-6 text-xl group-hover:bg-blue-600 group-hover:text-white transition">
+                        <i class="fa-solid fa-book-journal-whills"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-slate-900 mb-3">Modul Perjurnalan & Transaksi</h4>
+                    <p class="text-sm text-slate-600 leading-relaxed mb-4">
+                        Entri debit/kredit fleksibel untuk transaksi harian, jurnal penyesuaian (adjustment entries), serta log Jurnal Umum lengkap dengan filter tanggal.
+                    </p>
+                    <ul class="text-xs text-slate-500 space-y-1.5 font-medium">
+                        <li><i class="fa-solid fa-check text-emerald-500 mr-2"></i> Transaksi Harian Real-time</li>
+                        <li><i class="fa-solid fa-check text-emerald-500 mr-2"></i> Jurnal Penyesuaian Akhir Periode</li>
+                    </ul>
+                </div>
+
+                <!-- Feature 3: Kertas Kerja & Pembukuan -->
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 hover:border-blue-500 transition group">
+                    <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-6 text-xl group-hover:bg-blue-600 group-hover:text-white transition">
+                        <i class="fa-solid fa-calculator"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-slate-900 mb-3">Kertas Kerja & Pembukuan</h4>
+                    <p class="text-sm text-slate-600 leading-relaxed mb-4">
+                        Rincian Buku Besar (General Ledger), Trial Balance otomatis, hingga Neraca Lajur (Worksheet) 10-kolom untuk penyusunan laporan akhir periode.
+                    </p>
+                    <ul class="text-xs text-slate-500 space-y-1.5 font-medium">
+                        <li><i class="fa-solid fa-check text-emerald-500 mr-2"></i> Buku Besar Otomatis</li>
+                        <li><i class="fa-solid fa-check text-emerald-500 mr-2"></i> Neraca Saldo & Lajur</li>
+                    </ul>
+                </div>
+
+                <!-- Feature 4: Modul Pelaporan -->
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 hover:border-blue-500 transition group">
+                    <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-6 text-xl group-hover:bg-blue-600 group-hover:text-white transition">
+                        <i class="fa-solid fa-chart-pie"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-slate-900 mb-3">Laporan Keuangan Lengkap</h4>
+                    <p class="text-sm text-slate-600 leading-relaxed mb-4">
+                        Penyajian laporan keuangan instan mencakup Laporan Laba Rugi, Posisi Keuangan (Neraca), Perubahan Ekuitas, dan Arus Kas.
+                    </p>
+                    <ul class="text-xs text-slate-500 space-y-1.5 font-medium">
+                        <li><i class="fa-solid fa-check text-emerald-500 mr-2"></i> Laba Rugi & Neraca</li>
+                        <li><i class="fa-solid fa-check text-emerald-500 mr-2"></i> Laporan Arus Kas</li>
+                    </ul>
+                </div>
+
+                <!-- Feature 5: Multi-Device & Cloud -->
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 hover:border-blue-500 transition group">
+                    <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-6 text-xl group-hover:bg-blue-600 group-hover:text-white transition">
+                        <i class="fa-solid fa-cloud"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-slate-900 mb-3">Multi-Device & Cloud Storage</h4>
+                    <p class="text-sm text-slate-600 leading-relaxed mb-4">
+                        Akses data keuangan aman berbasis cloud dari desktop, laptop, maupun tablet Anda dengan sinkronisasi waktu nyata tanpa instalasi rumit.
+                    </p>
+                    <ul class="text-xs text-slate-500 space-y-1.5 font-medium">
+                        <li><i class="fa-solid fa-check text-emerald-500 mr-2"></i> Akses Kapan Saja & Di Mana Saja</li>
+                        <li><i class="fa-solid fa-check text-emerald-500 mr-2"></i> Backup Cloud Otomatis</li>
+                    </ul>
+                </div>
+
+                <!-- Feature 6: Ekspor & Audit Mudah -->
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 hover:border-blue-500 transition group">
+                    <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-6 text-xl group-hover:bg-blue-600 group-hover:text-white transition">
+                        <i class="fa-solid fa-file-arrow-down"></i>
+                    </div>
+                    <h4 class="text-lg font-bold text-slate-900 mb-3">Ekspor & Audit Mudah</h4>
+                    <p class="text-sm text-slate-600 leading-relaxed mb-4">
+                        Format laporan siap unduh dalam bentuk Excel dan PDF untuk kebutuhan perpajakan, rapat manajemen, atau audit eksternal.
+                    </p>
+                    <ul class="text-xs text-slate-500 space-y-1.5 font-medium">
+                        <li><i class="fa-solid fa-check text-emerald-500 mr-2"></i> Unduh Format Excel (.xlsx)</li>
+                        <li><i class="fa-solid fa-check text-emerald-500 mr-2"></i> Cetak Dokumen PDF Rapi</li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Value Propositions Section (Mengapa Memilih SiAkun?) -->
+    <section id="keunggulan" class="py-24 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                
+                <div class="space-y-6">
+                    <h2 class="text-blue-600 font-bold text-sm uppercase tracking-wider">Mengapa Memilih SiAkun?</h2>
+                    <h3 class="text-3xl sm:text-4xl font-extrabold text-slate-900 leading-tight">
+                        Solusi Akuntansi Modern yang Dirancang Untuk Efisiensi Bisnis Anda
+                    </h3>
+                    <p class="text-slate-600 text-base leading-relaxed">
+                        Kami mengeliminasi kerumitan pembukuan konvensional dengan menghadirkan antarmuka web yang bersih, navigasi ala software akuntansi profesional, serta validasi otomatis.
+                    </p>
+
+                    <div class="space-y-4 pt-2">
+                        <div class="flex items-start space-x-4">
+                            <div class="w-10 h-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 mt-1">
+                                <i class="fa-solid fa-bolt"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-slate-900 text-base">Simpel & Intuitif</h4>
+                                <p class="text-sm text-slate-600">Kurva belajar yang sangat singkat. Cocok untuk pengguna awam akuntansi maupun akuntan profesional berpengalaman.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start space-x-4">
+                            <div class="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0 mt-1">
+                                <i class="fa-solid fa-shield-halved"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-slate-900 text-base">Akurat & Minim Kesalahan</h4>
+                                <p class="text-sm text-slate-600">Dilengkapi sistem validasi otomatis untuk memastikan saldo debit dan kredit selalu seimbang (balance) di setiap transaksi.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start space-x-4">
+                            <div class="w-10 h-10 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center flex-shrink-0 mt-1">
+                                <i class="fa-solid fa-lock"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-slate-900 text-base">Keamanan Data Terjamin</h4>
+                                <p class="text-sm text-slate-600">Enkripsi tingkat tinggi dan sistem pencadangan berkala untuk melindungi data keuangan perusahaan Anda dari risiko kehilangan.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive UI Showcase Card -->
+                <div class="bg-navy-950 p-8 rounded-3xl text-white shadow-2xl relative">
+                    <div class="absolute -top-4 -right-4 bg-blue-600 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-lg">
+                        Navigasi Ala Accurate Online
+                    </div>
+                    <div class="space-y-6">
+                        <div class="flex items-center space-x-3 border-b border-slate-800 pb-4">
+                            <div class="w-3 h-3 rounded-full bg-blue-500"></div>
+                            <span class="font-mono text-xs text-slate-400">Simulasi Sidebar Workflow Akuntansi</span>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="p-3 bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-between text-sm">
+                                <span class="flex items-center space-x-3"><i class="fa-solid fa-chart-line text-blue-400"></i><span>Buku Besar & Neraca Saldo</span></span>
+                                <i class="fa-solid fa-chevron-right text-xs text-slate-500"></i>
+                            </div>
+                            <div class="p-3 bg-blue-600/20 border border-blue-500/40 rounded-xl flex items-center justify-between text-sm text-blue-300 font-semibold">
+                                <span class="flex items-center space-x-3"><i class="fa-solid fa-pen-to-square"></i><span>Input Jurnal Harian & Penyesuaian</span></span>
+                                <span class="px-2 py-0.5 rounded bg-blue-500 text-white text-[10px]">Aktif</span>
+                            </div>
+                            <div class="p-3 bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-between text-sm">
+                                <span class="flex items-center space-x-3"><i class="fa-solid fa-file-invoice-dollar text-emerald-400"></i><span>Laporan Laba Rugi & Posisi Keuangan</span></span>
+                                <i class="fa-solid fa-chevron-right text-xs text-slate-500"></i>
+                            </div>
+                        </div>
+                        <div class="pt-2">
+                            <div class="bg-emerald-500/10 border border-emerald-500/30 p-4 rounded-xl text-xs text-emerald-300 flex items-center space-x-3">
+                                <i class="fa-solid fa-circle-check text-lg"></i>
+                                <div>
+                                    <strong>Validasi Otomatis Aktif:</strong> Tidak ada selisih debit/kredit yang lolos ke laporan akhir.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section (Alur Penggunaan - 3 Langkah Mudah) -->
+    <section id="cara-kerja" class="py-24 bg-slate-50 border-t border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-blue-600 font-bold text-sm uppercase tracking-wider mb-3">Alur Penggunaan</h2>
+            <h3 class="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-4">3 Langkah Mudah Menggunakan SiAkun</h3>
+            <p class="text-slate-600 max-w-2xl mx-auto mb-16 text-base">Mulai merapikan pembukuan bisnis Anda dalam hitungan menit tanpa prosedur yang melelahkan.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+                <!-- Step 1 -->
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 relative">
+                    <div class="w-12 h-12 rounded-full bg-blue-600 text-white font-extrabold text-lg flex items-center justify-center mx-auto mb-6 shadow-md">1</div>
+                    <h4 class="text-lg font-bold text-slate-900 mb-2">Daftar Akun</h4>
+                    <p class="text-sm text-slate-600">Buat akun perusahaan Anda dalam hitungan detik. Pilih jenis usaha dan mulai kustomisasi chart of accounts.</p>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 relative">
+                    <div class="w-12 h-12 rounded-full bg-blue-600 text-white font-extrabold text-lg flex items-center justify-center mx-auto mb-6 shadow-md">2</div>
+                    <h4 class="text-lg font-bold text-slate-900 mb-2">Catat Transaksi / Jurnal</h4>
+                    <p class="text-sm text-slate-600">Masukkan data transaksi harian melalui antarmuka web yang bersih. Sistem otomatis memvalidasi keseimbangan.</p>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 relative">
+                    <div class="w-12 h-12 rounded-full bg-blue-600 text-white font-extrabold text-lg flex items-center justify-center mx-auto mb-6 shadow-md">3</div>
+                    <h4 class="text-lg font-bold text-slate-900 mb-2">Pantau Laporan</h4>
+                    <p class="text-sm text-slate-600">Lihat ringkasan keuangan, buku besar, dan laporan laba rugi secara langsung secara real-time kapan pun diperlukan.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="harga" class="py-24 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16 space-y-4">
+                <h2 class="text-blue-600 font-bold text-sm uppercase tracking-wider">Investasi Terjangkau</h2>
+                <h3 class="text-3xl sm:text-4xl font-extrabold text-slate-900">Pilih Paket Sesuai Skala Bisnis Anda</h3>
+                <p class="text-slate-600 text-base">Semua paket dilengkapi masa uji coba gratis selama 14 hari tanpa kartu kredit.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                <!-- Starter Plan -->
+                <div class="bg-slate-50 border border-slate-200 rounded-3xl p-8 flex flex-col justify-between">
+                    <div>
+                        <h4 class="text-lg font-bold text-slate-900 mb-2">Starter UMKM</h4>
+                        <p class="text-xs text-slate-500 mb-6">Cocok untuk usaha kecil yang baru merintis pembukuan rapi.</p>
+                        <div class="text-3xl font-extrabold text-slate-900 mb-6">Rp 99rb <span class="text-xs font-normal text-slate-500">/bulan</span></div>
+                        <ul class="space-y-3 text-sm text-slate-600 mb-8">
+                            <li><i class="fa-solid fa-check text-emerald-500 mr-2"></i> 1 Pengguna / Akun</li>
+                            <li><i class="fa-solid fa-check text-emerald-500 mr-2"></i> Jurnal Umum & Penyesuaian</li>
+                            <li><i class="fa-solid fa-check text-emerald-500 mr-2"></i> Buku Besar Otomatis</li>
+                            <li><i class="fa-solid fa-check text-emerald-500 mr-2"></i> Laporan Laba Rugi & Neraca</li>
+                        </ul>
+                    </div>
+                    <button onclick="openAuthModal('register')" class="w-full py-3 rounded-xl border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white font-bold text-sm transition">
+                        Pilih Starter
+                    </button>
+                </div>
+
+                <!-- Pro Plan (Featured) -->
+                <div class="bg-navy-950 text-white border-2 border-blue-500 rounded-3xl p-8 flex flex-col justify-between relative shadow-xl transform lg:-translate-y-2">
+                    <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full">
+                        Paling Populer
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-bold text-white mb-2">Professional</h4>
+                        <p class="text-xs text-slate-400 mb-6">Ideal untuk UMKM berkembang & akuntan publik.</p>
+                        <div class="text-3xl font-extrabold text-white mb-6">Rp 199rb <span class="text-xs font-normal text-slate-400">/bulan</span></div>
+                        <ul class="space-y-3 text-sm text-slate-300 mb-8">
+                            <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i> Hingga 5 Pengguna</li>
+                            <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i> Semua Fitur Starter</li>
+                            <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i> Neraca Lajur 10-Kolom</li>
+                            <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i> Ekspor Excel & PDF</li>
+                            <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i> Multi-Perusahaan</li>
+                        </ul>
+                    </div>
+                    <button onclick="openAuthModal('register')" class="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm shadow-lg transition">
+                        Coba Professional 14 Hari
+                    </button>
+                </div>
+
+                <!-- Enterprise Plan -->
+                <div class="bg-slate-50 border border-slate-200 rounded-3xl p-8 flex flex-col justify-between">
+                    <div>
+                        <h4 class="text-lg font-bold text-slate-900 mb-2">Enterprise</h4>
+                        <p class="text-xs text-slate-500 mb-6">Untuk perusahaan dengan volume transaksi tinggi.</p>
+                        <div class="text-3xl font-extrabold text-slate-900 mb-6">Rp 499rb <span class="text-xs font-normal text-slate-500">/bulan</span></div>
+                        <ul class="space-y-3 text-sm text-slate-600 mb-8">
+                            <li><i class="fa-solid fa-check text-emerald-500 mr-2"></i> Pengguna Tak Terbatas</li>
+                            <li><i class="fa-solid fa-check text-emerald-500 mr-2"></i> Fitur Enterprise Lengkap</li>
+                            <li><i class="fa-solid fa-check text-emerald-500 mr-2"></i> Dedicated Support 24/7</li>
+                            <li><i class="fa-solid fa-check text-emerald-500 mr-2"></i> Kustomisasi Audit Trail</li>
+                        </ul>
+                    </div>
+                    <button onclick="openAuthModal('register')" class="w-full py-3 rounded-xl border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white font-bold text-sm transition">
+                        Hubungi Sales
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimoni" class="py-24 bg-slate-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16 space-y-4">
+                <h2 class="text-blue-600 font-bold text-sm uppercase tracking-wider">Testimoni Pengguna</h2>
+                <h3 class="text-3xl sm:text-4xl font-extrabold text-slate-900">Apa Kata Mereka yang Telah Menggunakan SiAkun?</h3>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between">
+                    <p class="text-sm text-slate-600 italic mb-6">"Sebagai pemilik kafe, saya tadinya buta akuntansi. Dengan SiAkun, pencatatan kas dan laba rugi bulanan jadi sangat mudah dipahami tanpa pusing."</p>
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center">AS</div>
+                        <div>
+                            <h4 class="font-bold text-sm text-slate-900">Andi Saputra</h4>
+                            <p class="text-xs text-slate-500">Owner Kopi Senja</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between">
+                    <p class="text-sm text-slate-600 italic mb-6">"Fitur jurnal umum dan neraca lajur otomatis di SiAkun sangat membantu pekerjaan saya mengaudit klien UMKM secara efisien dari cloud."</p>
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center">RD</div>
+                        <div>
+                            <h4 class="font-bold text-sm text-slate-900">Rina Dewi, Ak.</h4>
+                            <p class="text-xs text-slate-500">Konsultan Keuangan Independen</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between">
+                    <p class="text-sm text-slate-600 italic mb-6">"Antarmukanya bersih mirip software akuntansi besar, namun jauh lebih ringkas. Sangat direkomendasikan untuk mahasiswa akuntansi praktek."</p>
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-full bg-amber-600 text-white font-bold flex items-center justify-center">FH</div>
+                        <div>
+                            <h4 class="font-bold text-sm text-slate-900">Fajar Hidayat</h4>
+                            <p class="text-xs text-slate-500">Mahasiswa Praktisi Akuntansi</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action Banner -->
+    <section class="py-20 hero-gradient text-white text-center relative overflow-hidden">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-6">
+            <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Siap Merapikan Keuangan Bisnis Anda Bersama SiAkun?</h2>
+            <p class="text-slate-300 text-base max-w-xl mx-auto">Coba Gratis Selama 14 Hari. Rasakan kemudahan pencatatan jurnal akuntansi web profesional sekarang juga.</p>
+            <div class="pt-4">
+                <button onclick="openAuthModal('register')" class="px-8 py-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-base shadow-2xl transition transform hover:-translate-y-0.5">
+                    Mulai Uji Coba Gratis Sekarang
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-navy-950 text-slate-400 py-16 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+                <div class="space-y-4 md:col-span-1">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold">
+                            <i class="fa-solid fa-vault"></i>
+                        </div>
+                        <span class="text-xl font-extrabold text-white">Si<span class="text-blue-400">Akun</span></span>
+                    </div>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        Sistem Informasi Akuntansi berbasis web untuk pencatatan jurnal, buku besar, dan laporan keuangan instan bagi UMKM dan profesional.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="text-white text-sm font-bold uppercase tracking-wider mb-4">Navigasi</h4>
+                    <ul class="space-y-2 text-xs">
+                        <li><a href="#fitur" class="hover:text-white transition">Fitur Utama</a></li>
+                        <li><a href="#keunggulan" class="hover:text-white transition">Keunggulan</a></li>
+                        <li><a href="#cara-kerja" class="hover:text-white transition">Cara Kerja</a></li>
+                        <li><a href="#harga" class="hover:text-white transition">Harga Paket</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white text-sm font-bold uppercase tracking-wider mb-4">Legal & Kebijakan</h4>
+                    <ul class="space-y-2 text-xs">
+                        <li><a href="#" onclick="showToast('Kebijakan Privasi', 'Data Anda dilindungi enkripsi end-to-end.')" class="hover:text-white transition">Kebijakan Privasi</a></li>
+                        <li><a href="#" onclick="showToast('Syarat & Ketentuan', 'Ketentuan layanan standar berlaku sesuai hukum Indonesia.')" class="hover:text-white transition">Syarat & Ketentuan</a></li>
+                        <li><a href="#" onclick="showToast('Keamanan', 'Sertifikasi ISO 27001 Cloud Storage.')" class="hover:text-white transition">Keamanan Data</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white text-sm font-bold uppercase tracking-wider mb-4">Hubungi Kami</h4>
+                    <p class="text-xs text-slate-400 mb-2">Gedung Cyber Tech Lt. 5, Jl. Sudirman Kav. 21, Jakarta Selatan</p>
+                    <p class="text-xs text-slate-400 mb-4">Email: support@siakun.id</p>
+                    <div class="flex space-x-4 text-slate-300">
+                        <a href="#" class="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center hover:bg-blue-600 transition"><i class="fa-brands fa-instagram text-xs"></i></a>
+                        <a href="#" class="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center hover:bg-blue-600 transition"><i class="fa-brands fa-linkedin-in text-xs"></i></a>
+                        <a href="#" class="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center hover:bg-blue-600 transition"><i class="fa-brands fa-twitter text-xs"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-slate-800 pt-8 flex flex-col sm:flex-row items-center justify-between text-xs">
+                <p>&copy; 2026 PT SiAkun Teknologi Indonesia. Hak Cipta Dilindungi.</p>
+                <p class="mt-4 sm:mt-0 text-slate-500">Sistem Informasi Akuntansi Berbasis Web v2.4</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Auth Modal (Login / Register) -->
+    <div id="auth-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-8 text-white relative shadow-2xl animate-in fade-in zoom-in duration-200">
+            <button onclick="closeAuthModal()" class="absolute top-6 right-6 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            <div class="mb-6">
+                <h3 id="auth-modal-title" class="text-2xl font-extrabold">Mulai Coba Gratis SiAkun</h3>
+                <p id="auth-modal-subtitle" class="text-xs text-slate-400 mt-1">Masukkan data diri Anda untuk mengakses platform SIA.</p>
+            </div>
+            <form onsubmit="handleAuthSubmit(event)" class="space-y-4">
+                <div id="name-field">
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Nama Lengkap / Perusahaan</label>
+                    <input type="text" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500" placeholder="Contoh: PT Maju Jaya">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Alamat Email Bisnis</label>
+                    <input type="email" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500" placeholder="nama@perusahaan.com">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Kata Sandi</label>
+                    <input type="password" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500" placeholder="Min. 8 karakter">
+                </div>
+                <button type="submit" class="w-full py-3.5 bg-blue-600 hover:bg-blue-500 rounded-xl font-bold text-sm shadow-lg shadow-blue-600/30 transition">
+                    Lanjutkan ke Dashboard SiAkun
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Interactive Demo Modal -->
+    <div id="demo-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-2xl w-full p-8 text-white relative shadow-2xl">
+            <button onclick="closeDemoModal()" class="absolute top-6 right-6 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            <div class="mb-6 flex items-center justify-between">
+                <div>
+                    <h3 class="text-xl font-extrabold">Simulasi Jurnal Umum SiAkun</h3>
+                    <p class="text-xs text-slate-400">Uji coba entri debit & kredit real-time</p>
+                </div>
+                <span class="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-semibold border border-emerald-500/20">Status: Balance</span>
+            </div>
+            
+            <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-4 font-mono text-xs">
+                <div class="grid grid-cols-12 text-slate-500 pb-2 border-b border-slate-800">
+                    <div class="col-span-3">AKUN</div>
+                    <div class="col-span-5">KETERANGAN</div>
+                    <div class="col-span-2 text-right">DEBIT (Rp)</div>
+                    <div class="col-span-2 text-right">KREDIT (Rp)</div>
+                </div>
+                <div class="grid grid-cols-12 items-center gap-2">
+                    <div class="col-span-3 text-blue-400">1101 - Kas</div>
+                    <div class="col-span-5 text-slate-300">Setoran Modal Awal</div>
+                    <div class="col-span-2 text-right text-emerald-400">10.000.000</div>
+                    <div class="col-span-2 text-right">-</div>
+                </div>
+                <div class="grid grid-cols-12 items-center gap-2">
+                    <div class="col-span-3 text-blue-400">3101 - Modal</div>
+                    <div class="col-span-5 text-slate-300">Setoran Modal Awal</div>
+                    <div class="col-span-2 text-right">-</div>
+                    <div class="col-span-2 text-right text-blue-400">10.000.000</div>
+                </div>
+            </div>
+
+            <div class="mt-6 flex justify-between items-center">
+                <p class="text-xs text-slate-400">*Validasi otomatis memastikan total debit dan kredit seimbang.</p>
+                <button onclick="closeDemoModal(); openAuthModal('register');" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 rounded-xl font-bold text-xs shadow-lg transition">
+                    Coba Aplikasi Penuh
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Interactive Handlers -->
+    <script>
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const icon = document.getElementById('menu-icon');
+            menu.classList.toggle('hidden');
+            if (menu.classList.contains('hidden')) {
+                icon.className = "fa-solid fa-bars text-2xl";
+            } else {
+                icon.className = "fa-solid fa-xmark text-2xl";
+            }
+        }
+
+        function showToast(title, message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-title').innerText = title;
+            document.getElementById('toast-message').innerText = message;
+            toast.classList.remove('translate-y-28');
+            setTimeout(() => {
+                toast.classList.add('translate-y-28');
+            }, 3500);
+        }
+
+        function openAuthModal(mode) {
+            const modal = document.getElementById('auth-modal');
+            const title = document.getElementById('auth-modal-title');
+            const subtitle = document.getElementById('auth-modal-subtitle');
+            const nameField = document.getElementById('name-field');
+
+            if (mode === 'login') {
+                title.innerText = "Masuk ke Akun SiAkun";
+                subtitle.innerText = "Akses kembali pembukuan keuangan bisnis Anda.";
+                nameField.style.display = 'none';
+            } else {
+                title.innerText = "Mulai Coba Gratis SiAkun";
+                subtitle.innerText = "Nikmati akses penuh sistem akuntansi web selama 14 hari.";
+                nameField.style.display = 'block';
+            }
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeAuthModal() {
+            const modal = document.getElementById('auth-modal');
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+        }
+
+        function handleAuthSubmit(event) {
+            event.preventDefault();
+            closeAuthModal();
+            showToast("Berhasil!", "Akun Anda berhasil didaftarkan. Selamat datang di SiAkun!");
+        }
+
+        function openDemoModal() {
+            const modal = document.getElementById('demo-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeDemoModal() {
+            const modal = document.getElementById('demo-modal');
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
